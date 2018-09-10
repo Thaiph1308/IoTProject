@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-include ':blink', ':blinkfrequence', ':blinkfrequence2', ':blinkfrequence3', ':myapplication'
+include ':blink', ':test'
 include ':pwm'
 include ':button'
