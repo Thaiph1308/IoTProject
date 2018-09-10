@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-include ':blink', ':test'
+include ':blink', ':EightState'
 include ':pwm'
 include ':button'

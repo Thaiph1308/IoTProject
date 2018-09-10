@@ -95,35 +95,6 @@ public class BlinkActivity extends Activity {
                 e.printStackTrace();
             }
 
-//            setState(false, false, false);
-////            System.out.print("1");
-//            Log.i(TAG,"1");
-//            setState(false, false, true);
-//            Log.i(TAG,"2");
-//            setState(false, true, false);
-//            Log.i(TAG,"3");
-//            setState(false, true, true);
-//            Log.i(TAG,"4");
-//            setState(true, false, false);
-//            Log.i(TAG,"5");
-//            setState(true, false, true);
-//            Log.i(TAG,"6");
-//            setState(true, true, false);
-//            Log.i(TAG,"7");
-//            setState(true, true, true);
-//            Log.i(TAG,"8");
-
-
-
-//                setState(false, false, true);
-
-//            setState(true, false, false);
-
-
-//            setState(true, false, false);
-
-// Reschedule the same runnable in {#INTERVAL_BETWEEN_BLINKS_MS}
-
             mHandler.postDelayed(mBlinkRunnable, 1000);
         }
     };

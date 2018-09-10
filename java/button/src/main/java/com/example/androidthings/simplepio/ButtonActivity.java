@@ -20,7 +20,10 @@ import android.app.Activity;
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.GpioCallback;
 import com.google.android.things.pio.PeripheralManager;
+
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
@@ -31,16 +34,27 @@ import java.io.IOException;
  */
 public class ButtonActivity extends Activity {
     private static final String TAG = ButtonActivity.class.getSimpleName();
-
+    private Gpio mLedGpio6;
     private Gpio mButtonGpio;
-
+    private Gpio mLed;
+    private boolean ledState = false;
+    private int time = 2000;
+    private Handler mHandler = new Handler();
+    private int i = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Starting ButtonActivity");
 
         try {
+            String pinName6 = "BCM6"; // BoardDefaults.getGPIOForLED();
+            mLedGpio6 = PeripheralManager.getInstance().openGpio(pinName6);
+            mLedGpio6.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
+            mLedGpio6.setValue(ledState);
             String pinName = BoardDefaults.getGPIOForButton();
+            mHandler.post(ledRunable);
+            Log.i(TAG,"time: "+time);
+
             mButtonGpio = PeripheralManager.getInstance().openGpio(pinName);
             mButtonGpio.setDirection(Gpio.DIRECTION_IN);
             mButtonGpio.setEdgeTriggerType(Gpio.EDGE_FALLING);
@@ -49,6 +63,23 @@ public class ButtonActivity extends Activity {
                 public boolean onGpioEdge(Gpio gpio) {
                     Log.i(TAG, "GPIO changed, button pressed");
                     // Return true to continue listening to events
+                    if (time <= 500 ) {
+                        time = 2000;
+                        mHandler.post(ledRunable);
+                        Log.i(TAG,"time: "+time);
+
+                    }
+                    else {
+                        time = time/2;
+                        mHandler.post(ledRunable);
+                        Log.i(TAG,"time: "+time);
+                    }
+                        try {
+                            Thread.sleep(300);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    //Log.i(TAG,"RETURN TRUE: "+time);
                     return true;
                 }
             });
@@ -57,18 +88,38 @@ public class ButtonActivity extends Activity {
         }
     }
 
+    private Runnable ledRunable = new Runnable() {
+        @Override
+        public void run() {
+            if (mLedGpio6 == null ){
+                return ;
+            }
+            ledState = !ledState;
+
+
+            try {
+                mLedGpio6.setValue(ledState);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mHandler.postDelayed(ledRunable, time);
+        }
+    };
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mButtonGpio != null) {
+        if (mButtonGpio != null || mLedGpio6 != null) {
             // Close the Gpio pin
             Log.i(TAG, "Closing Button GPIO pin");
             try {
                 mButtonGpio.close();
+                mLedGpio6.close();
             } catch (IOException e) {
                 Log.e(TAG, "Error on PeripheralIO API", e);
             } finally {
                 mButtonGpio = null;
+                mLedGpio6=null;
             }
         }
     }
